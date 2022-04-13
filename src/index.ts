@@ -13,12 +13,16 @@ const areNeighbours = ({ x: x1, y: y1 }: AliveCell, { x: x2, y: y2 }: AliveCell)
 const extractNeighbours = (currentCell: AliveCell, grid: Grid): AliveCell[] =>
   grid.filter((cell) => areNeighbours(currentCell, cell));
 
-const isInUnderpopulation = (neighbours: AliveCell[]): boolean => {
-  return neighbours.length <= 2;
+const isInUnderpopulation = (numberOfNeighbours: number): boolean => {
+  return numberOfNeighbours < 2;
 };
 
-const isInOverpopulation = (neighbours: AliveCell[]): boolean => {
-  return neighbours.length > 3;
+const isInOverpopulation = (numberOfNeighbours: number): boolean => {
+  return numberOfNeighbours > 3;
+};
+
+export const nextStatus = (numberOfNeighbours: number): "alive" | "dead" => {
+  return isInUnderpopulation(numberOfNeighbours) || isInOverpopulation(numberOfNeighbours) ? "dead" : "alive";
 };
 
 const shouldStayAlive =
@@ -26,7 +30,7 @@ const shouldStayAlive =
   (cell: AliveCell): boolean => {
     const neighbours = extractNeighbours(cell, grid);
 
-    return !isInUnderpopulation(neighbours) && !isInOverpopulation(neighbours);
+    return nextStatus(neighbours.length) === "alive";
   };
 
 export const computeNextGeneration = (inputCells: Grid): Grid => {
